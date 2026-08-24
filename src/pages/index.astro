@@ -46,31 +46,7 @@ const avatar = (await images[imagePath]()).default
           fetchpriority='high'
         />
       </div>
-    </section>
 
-    <section class='home-section'>
-      <h2>Internship Experience</h2>
-      <div class='entry-list'>
-        {
-          home.internships.map((item) => (
-            <article class='media-entry'>
-              <div class='media-placeholder' aria-hidden='true'>EXP</div>
-              <div>
-                <h3>{item.title}</h3>
-                <p class='compact'>{item.role}</p>
-                <p class='inline-links'>
-                  {item.links.map((link, index) => (
-                    <>
-                      <a href={link.href}>{link.label}</a>
-                      {index < item.links.length - 1 && <span> / </span>}
-                    </>
-                  ))}
-                </p>
-              </div>
-            </article>
-          ))
-        }
-      </div>
     </section>
 
     <section class='home-section'>
@@ -121,21 +97,6 @@ const avatar = (await images[imagePath]()).default
     </section>
 
     <section class='home-section'>
-      <h2>Invited Talks</h2>
-      <div class='entry-list simple-list'>
-        {
-          home.talks.map((talk) => (
-            <article class='text-entry'>
-              <strong>“{talk.title}”</strong>
-              <p class='compact'>{talk.detail}</p>
-              <p class='date'>{talk.date}</p>
-            </article>
-          ))
-        }
-      </div>
-    </section>
-
-    <section class='home-section'>
       <h2>Selected Honors &amp; Awards</h2>
       <div class='entry-list simple-list'>
         {
@@ -150,10 +111,6 @@ const avatar = (await images[imagePath]()).default
       </div>
     </section>
 
-    <section class='home-section miscellaneous'>
-      <h2>Miscellaneous</h2>
-      <p>{home.miscellaneous}</p>
-    </section>
   </main>
 </PageLayout>
 

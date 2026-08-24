@@ -3,27 +3,16 @@
  * Replace the placeholder text and links with your own information.
  */
 export const home = {
-  name: 'Your Name',
+  name: 'Yuxuan Zheng',
   introduction: [
-    'I am a student and developer interested in computer vision, photogrammetry, and machine learning.',
-    'My current work focuses on learning reliable visual representations and building practical tools from research ideas.'
+    'I am currently an undergraduate student majoring in Robotics Engineering at the Southern University of Science and Technology (SUSTech), under the academic supervision of Prof. Boyu Zhou. My primary research interests include robotics, computer vision, and autonomous navigation for unmanned aerial vehicles (UAVs).',
+    'I currently serve as the Head of the Algorithm Group at the ARES Robotics Club, where I lead a team of students in developing robotic algorithms and preparing for the ABU Robocon 2027.'
   ],
   links: [
-    { label: 'Email', href: 'mailto:you@example.com' },
+    { label: 'Email', href: 'gracekite2155173747@gmail.com' },
     { label: 'Google Scholar', href: '#' },
     { label: 'CV', href: '#' },
-    { label: 'GitHub', href: 'https://github.com/BetterOIer' },
-    { label: 'Twitter', href: '#' }
-  ],
-  internships: [
-    {
-      title: 'Research Internship',
-      role: 'Add your role and main contribution here.',
-      links: [
-        { label: 'project page', href: '#' },
-        { label: 'technical report', href: '#' }
-      ]
-    }
+    { label: 'GitHub', href: 'https://github.com/BetterOIer' }
   ],
   works: [
     {
@@ -50,39 +39,19 @@ export const home = {
   ],
   experience: [
     {
-      title: 'Student or Researcher',
-      organization: 'Your University or Organization',
-      detail: 'Advisor or research group',
-      date: '2024 ~ Present'
-    },
-    {
-      title: 'Research Intern',
-      organization: 'Company or Research Lab',
-      detail: 'Mentor and project area',
-      date: '2023 ~ 2024'
-    }
-  ],
-  talks: [
-    {
-      title: 'Title of Your Invited Talk',
-      detail: 'Host organization · Event name',
-      date: '2026'
+      title: 'Algorithm Team Member for Robocon 2026',
+      organization: 'ARES Team, SUSTech',
+      detail: 'Responsible for robot action planning, autonomous system design, and serving as the R2 robot operator.',
+      date: '2025 ~ 2026'
     }
   ],
   awards: [
     {
-      title: 'Scholarship or Competition Award',
-      detail: 'A short explanation of the award',
-      date: '2025'
+      title: 'Robocon 2026 National Competition — \"Kung Fu Quest\" Main Event',
+      detail: 'Second Prize',
+      date: '2026.7'
     },
-    {
-      title: 'Another Honor or Award',
-      detail: 'Placement, scope, or selection rate',
-      date: '2024'
-    }
-  ],
-  miscellaneous:
-    'Add a short personal note here—for example, competitive programming experience, hobbies, or a link to older notes.'
+  ]
 }
 
 export default home
