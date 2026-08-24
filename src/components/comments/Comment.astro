@@ -1,0 +1,82 @@
+---
+import { cn } from 'astro-pure/utils'
+
+interface Props {
+  class?: string
+}
+
+const { class: className } = Astro.props
+
+// The repository ID is stable even if the repository is renamed.
+const repo = import.meta.env.PUBLIC_GISCUS_REPO || 'BetterOIer/BetterOIer.github.io'
+const repoId = import.meta.env.PUBLIC_GISCUS_REPO_ID || 'R_kgDOHvV91w'
+const category = import.meta.env.PUBLIC_GISCUS_CATEGORY || 'General'
+const categoryId = import.meta.env.PUBLIC_GISCUS_CATEGORY_ID || undefined
+---
+
+<section id='comments' class={cn('not-prose scroll-mt-24', className)} aria-labelledby='comments-title'>
+  <div class='mb-4 flex items-center justify-between gap-4'>
+    <h2 id='comments-title' class='text-xl font-medium text-foreground'>Comments</h2>
+    <a
+      href={`https://github.com/${repo}/discussions`}
+      target='_blank'
+      rel='noopener noreferrer'
+      class='text-sm text-muted-foreground'
+    >
+      View on GitHub
+    </a>
+  </div>
+
+  <div class='giscus'></div>
+  <noscript>
+    <p class='rounded-lg border bg-muted p-4 text-sm text-muted-foreground'>
+      Comments are powered by GitHub Discussions. Enable JavaScript and sign in with GitHub to
+      join the discussion.
+    </p>
+  </noscript>
+
+  <script
+    is:inline
+    src='https://giscus.app/client.js'
+    data-repo={repo}
+    data-repo-id={repoId}
+    data-category={category}
+    data-category-id={categoryId}
+    data-mapping='pathname'
+    data-strict='1'
+    data-reactions-enabled='1'
+    data-emit-metadata='0'
+    data-input-position='top'
+    data-theme='preferred_color_scheme'
+    data-lang='en'
+    data-loading='lazy'
+    crossorigin='anonymous'
+    async
+  ></script>
+</section>
+
+<script>
+  const updateGiscusTheme = () => {
+    const theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light'
+    const iframe = document.querySelector<HTMLIFrameElement>('#comments iframe.giscus-frame')
+    iframe?.contentWindow?.postMessage({ giscus: { setConfig: { theme } } }, 'https://giscus.app')
+  }
+
+  const observer = new MutationObserver(updateGiscusTheme)
+  observer.observe(document.documentElement, { attributeFilter: ['class'] })
+
+  window.addEventListener('message', (event) => {
+    if (event.origin === 'https://giscus.app') updateGiscusTheme()
+  })
+</script>
+
+<style>
+  #comments {
+    color: hsl(var(--foreground) / var(--un-text-opacity, 1));
+  }
+
+  #comments :global(.giscus),
+  #comments :global(.giscus-frame) {
+    width: 100%;
+  }
+</style>

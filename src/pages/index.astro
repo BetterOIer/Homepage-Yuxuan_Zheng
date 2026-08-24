@@ -1,0 +1,376 @@
+---
+import PageLayout from '@/layouts/BaseLayout.astro'
+import config from '@/site-config'
+import home from '../home.config'
+
+export const prerender = true
+
+const imagePath = config.logo.src
+const images = import.meta.glob<{ default: ImageMetadata }>(
+  '/src/assets/*.{jpeg,jpg,png,gif,avif,webp}'
+)
+
+if (!images[imagePath]) {
+  throw new Error(`Homepage avatar not found: ${imagePath}`)
+}
+
+const avatar = (await images[imagePath]()).default
+---
+
+<PageLayout meta={{ title: home.name, description: home.introduction.join(' ') }}>
+  <main class='academic-home'>
+    <section class='profile' aria-labelledby='profile-name'>
+      <div class='profile-copy'>
+        <h1 id='profile-name'>{home.name}</h1>
+        {home.introduction.map((paragraph) => <p>{paragraph}</p>)}
+        <nav class='profile-links' aria-label='Profile links'>
+          {
+            home.links.map((link, index) => (
+              <>
+                <a href={link.href}>{link.label}</a>
+                {index < home.links.length - 1 && <span aria-hidden='true'>/</span>}
+              </>
+            ))
+          }
+        </nav>
+      </div>
+
+      <div class='portrait-wrap'>
+        <img
+          src={avatar.src}
+          width={avatar.width}
+          height={avatar.height}
+          alt={`${home.name} portrait`}
+          class='portrait'
+          loading='eager'
+          fetchpriority='high'
+        />
+      </div>
+    </section>
+
+    <section class='home-section'>
+      <h2>Internship Experience</h2>
+      <div class='entry-list'>
+        {
+          home.internships.map((item) => (
+            <article class='media-entry'>
+              <div class='media-placeholder' aria-hidden='true'>EXP</div>
+              <div>
+                <h3>{item.title}</h3>
+                <p class='compact'>{item.role}</p>
+                <p class='inline-links'>
+                  {item.links.map((link, index) => (
+                    <>
+                      <a href={link.href}>{link.label}</a>
+                      {index < item.links.length - 1 && <span> / </span>}
+                    </>
+                  ))}
+                </p>
+              </div>
+            </article>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class='home-section'>
+      <h2>Favorite Works</h2>
+      <div class='entry-list'>
+        {
+          home.works.map((work, index) => (
+            <article class='media-entry featured-work'>
+              <div class='media-placeholder work-placeholder' aria-hidden='true'>
+                {String(index + 1).padStart(2, '0')}
+              </div>
+              <div>
+                <h3><a href={work.links[0]?.href ?? '#'}>{work.title}</a></h3>
+                <p class='compact'>{work.authors}</p>
+                <p class='venue'>{work.venue}</p>
+                <p class='inline-links'>
+                  {work.links.map((link, linkIndex) => (
+                    <>
+                      <a href={link.href}>{link.label}</a>
+                      {linkIndex < work.links.length - 1 && <span> / </span>}
+                    </>
+                  ))}
+                </p>
+                <p>{work.description}</p>
+              </div>
+            </article>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class='home-section'>
+      <h2>Experience</h2>
+      <div class='entry-list simple-list'>
+        {
+          home.experience.map((item) => (
+            <article class='simple-entry'>
+              <div class='entry-mark' aria-hidden='true'></div>
+              <div>
+                <strong>{item.title}, {item.organization}</strong>
+                <p class='compact'>{item.detail}</p>
+                <p class='date'>{item.date}</p>
+              </div>
+            </article>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class='home-section'>
+      <h2>Invited Talks</h2>
+      <div class='entry-list simple-list'>
+        {
+          home.talks.map((talk) => (
+            <article class='text-entry'>
+              <strong>“{talk.title}”</strong>
+              <p class='compact'>{talk.detail}</p>
+              <p class='date'>{talk.date}</p>
+            </article>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class='home-section'>
+      <h2>Selected Honors &amp; Awards</h2>
+      <div class='entry-list simple-list'>
+        {
+          home.awards.map((award) => (
+            <article class='text-entry'>
+              <strong>{award.title}</strong>
+              <p class='compact'>{award.detail}</p>
+              <p class='date'>{award.date}</p>
+            </article>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class='home-section miscellaneous'>
+      <h2>Miscellaneous</h2>
+      <p>{home.miscellaneous}</p>
+    </section>
+  </main>
+</PageLayout>
+
+<style>
+  .academic-home {
+    width: 100%;
+    max-width: 50rem;
+    margin: 2.5rem auto 5rem;
+    font-size: 0.9rem;
+    line-height: 1.55;
+  }
+
+  .academic-home p {
+    margin-block: 0.65rem;
+  }
+
+  .academic-home a {
+    color: #1772d0;
+    text-decoration: none;
+  }
+
+  .academic-home a:hover,
+  .academic-home a:focus-visible {
+    color: #e47f1b;
+  }
+
+  :global(.dark) .academic-home a {
+    color: #6eb7ff;
+  }
+
+  :global(.dark) .academic-home a:hover,
+  :global(.dark) .academic-home a:focus-visible {
+    color: #ffad5c;
+  }
+
+  .profile {
+    display: grid;
+    grid-template-columns: minmax(0, 1.7fr) minmax(11rem, 1fr);
+    align-items: center;
+    gap: 2rem;
+    padding: 1.25rem;
+  }
+
+  .profile h1 {
+    margin: 0 0 1.25rem;
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 500;
+    line-height: 1.2;
+  }
+
+  .profile-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.25rem 0.55rem;
+    margin-top: 1rem;
+  }
+
+  .profile-links span {
+    color: hsl(var(--muted-foreground) / var(--un-text-opacity, 1));
+  }
+
+  .portrait-wrap {
+    display: flex;
+    justify-content: center;
+  }
+
+  .portrait {
+    width: min(100%, 13.5rem);
+    aspect-ratio: 1;
+    border-radius: 999px;
+    object-fit: cover;
+  }
+
+  .home-section {
+    margin-top: 1.75rem;
+  }
+
+  .home-section > h2 {
+    margin: 0;
+    padding: 0.75rem 1.25rem;
+    font-size: 1.4rem;
+    font-weight: 500;
+  }
+
+  .entry-list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .media-entry {
+    display: grid;
+    grid-template-columns: 10rem minmax(0, 1fr);
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1.25rem;
+    border-radius: 0.7rem;
+  }
+
+  .featured-work {
+    background: color-mix(in srgb, #fff7ad 35%, transparent);
+  }
+
+  :global(.dark) .featured-work {
+    background: color-mix(in srgb, #786b18 16%, transparent);
+  }
+
+  .media-placeholder {
+    display: grid;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    place-items: center;
+    border: 1px solid hsl(var(--border) / var(--un-border-opacity, 1));
+    border-radius: 0.65rem;
+    background: hsl(var(--muted) / var(--un-bg-opacity, 1));
+    color: hsl(var(--muted-foreground) / var(--un-text-opacity, 1));
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+  }
+
+  .work-placeholder {
+    aspect-ratio: 1.35;
+    font-size: 1.5rem;
+    font-weight: 500;
+  }
+
+  .media-entry h3 {
+    margin: 0 0 0.2rem;
+    font-size: 0.98rem;
+    font-weight: 700;
+    line-height: 1.4;
+  }
+
+  .compact,
+  .inline-links,
+  .date,
+  .venue {
+    margin-block: 0.18rem !important;
+  }
+
+  .venue {
+    color: #c9363b;
+    font-weight: 700;
+  }
+
+  .simple-list {
+    gap: 0.2rem;
+  }
+
+  .simple-entry {
+    display: grid;
+    grid-template-columns: 4.5rem minmax(0, 1fr);
+    align-items: center;
+    gap: 1.25rem;
+    padding: 0.75rem 1.25rem;
+  }
+
+  .entry-mark {
+    width: 3.75rem;
+    aspect-ratio: 1;
+    border: 1px solid hsl(var(--border) / var(--un-border-opacity, 1));
+    border-radius: 999px;
+    background: hsl(var(--muted) / var(--un-bg-opacity, 1));
+  }
+
+  .date {
+    color: hsl(var(--muted-foreground) / var(--un-text-opacity, 1));
+    font-style: italic;
+  }
+
+  .text-entry {
+    padding: 0.7rem 1.25rem;
+  }
+
+  .miscellaneous {
+    padding-bottom: 1rem;
+  }
+
+  .miscellaneous > p {
+    padding-inline: 1.25rem;
+  }
+
+  @media (max-width: 640px) {
+    .academic-home {
+      margin-top: 1.25rem;
+    }
+
+    .profile {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1.25rem;
+    }
+
+    .portrait-wrap {
+      grid-row: 1;
+    }
+
+    .portrait {
+      width: 10rem;
+    }
+
+    .media-entry {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .media-placeholder {
+      width: min(100%, 14rem);
+    }
+
+    .simple-entry {
+      grid-template-columns: 3rem minmax(0, 1fr);
+      gap: 0.8rem;
+    }
+
+    .entry-mark {
+      width: 2.75rem;
+    }
+  }
+</style>

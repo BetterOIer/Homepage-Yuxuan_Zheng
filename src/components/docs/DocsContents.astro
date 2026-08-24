@@ -1,0 +1,214 @@
+---
+import { type CollectionEntry } from 'astro:content'
+
+import { getBlogCollection } from 'astro-pure/server'
+import { Icon } from 'astro-pure/user'
+import { cn } from 'astro-pure/utils'
+
+const docsCollection = (await getBlogCollection('docs')) as CollectionEntry<'docs'>[]
+// Astro normalizes entry IDs, including directory names, to lowercase. Use the
+// real source path so collection cards preserve the folder's original casing.
+const docsByCate = docsCollection.reduce((acc: { [key: string]: typeof docsCollection }, doc) => {
+  const normalizedPath = doc.filePath?.replaceAll('\\', '/')
+  const folderName = normalizedPath?.match(/(?:^|\/)src\/content\/docs\/([^/]+)\//)?.[1]
+    ?? doc.id.split('/')[0]
+
+  if (!acc[folderName]) acc[folderName] = [] as typeof docsCollection
+  acc[folderName].push(doc)
+  return acc
+}, {})
+
+type Props = {
+  title?: boolean
+  cards?: boolean
+  class?: string
+}
+
+const { title = true, cards = false, class: className, ...props } = Astro.props
+
+const getReadingStats = (markdown: string) => {
+  const text = markdown
+    .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/`[^`]*`/g, ' ')
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
+    .replace(/\[[^\]]*\]\([^)]*\)/g, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/https?:\/\/\S+/g, ' ')
+
+  const hanCount = text.match(/[\p{Script=Han}]/gu)?.length ?? 0
+  const wordCount = text.replace(/[\p{Script=Han}]/gu, ' ').match(/[\p{L}\p{N}]+/gu)?.length ?? 0
+  const total = hanCount + wordCount
+  const minutes = Math.max(1, Math.ceil(hanCount / 500 + wordCount / 220))
+
+  return { total: total.toLocaleString('zh-CN'), minutes }
+}
+
+const docCategories = Object.entries(docsByCate).map(([id, docs]) => {
+  const sortedDocs = docs.sort((a, b) => a.data.order - b.data.order)
+  const stats = getReadingStats(sortedDocs.map((doc) => doc.body ?? '').join('\n'))
+
+  return {
+    id,
+    docs: sortedDocs,
+    firstDoc: sortedDocs[0],
+    stats
+  }
+})
+---
+
+<docs-toc class={cn('not-prose', className)} {...props}>
+  {title && <h2 class='text-foreground font-medium'>{cards ? 'Docs' : 'DOCS'}</h2>}
+  {
+    cards ? (
+      <ul class='docs-grid'>
+        {docCategories.map(({ id, docs, firstDoc, stats }) => (
+          <li class='doc-card'>
+            <a href={`/docs/${firstDoc.id}`} data-astro-prefetch>
+              <div class='flex items-start justify-between gap-3'>
+                <h3 class='line-clamp-2 font-medium leading-snug text-foreground'>{id}</h3>
+                <svg
+                  xmlns='http://www.w3.org/2000/svg'
+                  width='16'
+                  height='16'
+                  viewBox='0 0 24 24'
+                  fill='none'
+                  stroke-width='2.5'
+                  stroke-linecap='round'
+                  stroke-linejoin='round'
+                  class='preview-redirect mt-0.5 shrink-0 stroke-muted-foreground'
+                >
+                  <line x1='5' y1='12' x2='19' y2='12' />
+                  <polyline points='12 5 19 12 12 19' />
+                </svg>
+              </div>
+
+              <p class='mt-2 text-xs leading-relaxed text-muted-foreground'>
+                {docs.length} documents
+              </p>
+
+              <div class='mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 pt-4 text-xs text-muted-foreground'>
+                <span>{stats.total} words</span>
+                <span class='flex items-center gap-1'>
+                  <Icon name='time' class='size-3.5' />
+                  {stats.minutes} min
+                </span>
+              </div>
+            </a>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <ul class='mt-4 flex flex-col gap-y-5'>
+        {docCategories.map(({ id, docs }) => (
+          <li>
+            <h3 class='text-muted-foreground text-xs tracking-widest uppercase'>{id}</h3>
+            <ul class='mt-2 flex flex-col'>
+              {docs.map((doc) => (
+                  <li class='docs-item flex relative ms-2 px-3 py-1 text-foreground/75 transition-all rounded-2xl'>
+                    <a class='flex-1 hover:text-foreground' href={`/docs/${doc.id}`}>
+                      {doc.data.title}
+                    </a>
+                  </li>
+              ))}
+            </ul>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+</docs-toc>
+
+<style>
+  .docs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 22rem));
+    gap: 0.75rem;
+  }
+
+  .doc-card > a {
+    display: flex;
+    min-height: 9.5rem;
+    height: 100%;
+    flex-direction: column;
+    border: 1px solid hsl(var(--border) / var(--un-border-opacity, 1));
+    border-radius: 1rem;
+    background: hsl(var(--background) / var(--un-bg-opacity, 1));
+    padding: 1rem;
+    color: inherit;
+    text-decoration: none;
+    transition:
+      color 180ms ease,
+      background-color 180ms ease,
+      border-color 180ms ease,
+      transform 180ms ease;
+  }
+
+  .doc-card > a:hover {
+    transform: translateY(-2px);
+    border-color: hsl(var(--primary) / 0.35);
+    background: hsl(var(--muted) / var(--un-bg-opacity, 1));
+  }
+
+  .doc-card > a:hover h4 {
+    color: hsl(var(--primary) / var(--un-text-opacity, 1));
+  }
+
+  .doc-card .preview-redirect line {
+    transform: translateX(0.25rem) scaleX(0);
+    transform-origin: center;
+    transition: transform 180ms ease;
+  }
+
+  .doc-card > a:hover .preview-redirect {
+    stroke: hsl(var(--primary) / var(--un-text-opacity, 1));
+  }
+
+  .doc-card > a:hover .preview-redirect line {
+    transform: translateX(0) scaleX(1);
+  }
+
+  docs-toc .docs-item::before {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 5%;
+    bottom: 5%;
+    left: -0.5rem;
+    width: 2px;
+    background-color: hsl(var(--input) / var(--un-bg-opacity));
+  }
+
+  docs-toc :global(.docs-item.docs-hl) {
+    background-color: hsl(var(--muted) / var(--un-bg-opacity));
+    font-weight: 500;
+    & a {
+      color: hsl(var(--primary) / var(--un-text-opacity));
+    }
+
+    &::before {
+      background-color: hsl(var(--primary) / var(--un-bg-opacity));
+    }
+  }
+</style>
+
+<script>
+  class DocsTOC extends HTMLElement {
+    link: string = ''
+
+    constructor() {
+      super()
+      this.link = window.location.pathname
+    }
+
+    connectedCallback() {
+      const links = this.querySelectorAll('a')
+      links.forEach((link) => {
+        if (link.getAttribute('href') === this.link) {
+          link.parentElement?.classList.add('docs-hl')
+        }
+      })
+    }
+  }
+
+  customElements.define('docs-toc', DocsTOC)
+</script>
