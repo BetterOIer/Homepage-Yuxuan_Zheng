@@ -15,14 +15,27 @@ if (!images[imagePath]) {
 }
 
 const avatar = (await images[imagePath]()).default
+const introductionText = home.introduction
+  .map((paragraph) => paragraph.map((segment) => segment.text).join(''))
+  .join(' ')
 ---
 
-<PageLayout meta={{ title: home.name, description: home.introduction.join(' ') }}>
+<PageLayout meta={{ title: home.name, description: introductionText }}>
   <main class='academic-home'>
     <section class='profile' aria-labelledby='profile-name'>
       <div class='profile-copy'>
         <h1 id='profile-name'>{home.name}</h1>
-        {home.introduction.map((paragraph) => <p>{paragraph}</p>)}
+        {
+          home.introduction.map((paragraph) => (
+            <p>
+              {paragraph.map((segment) => (
+                segment.href
+                  ? <a href={segment.href}>{segment.text}</a>
+                  : segment.text
+              ))}
+            </p>
+          ))
+        }
         <nav class='profile-links' aria-label='Profile links'>
           {
             home.links.map((link, index) => (
