@@ -21,10 +21,11 @@ const docsByCate = docsCollection.reduce((acc: { [key: string]: typeof docsColle
 type Props = {
   title?: boolean
   cards?: boolean
+  category?: string
   class?: string
 }
 
-const { title = true, cards = false, class: className, ...props } = Astro.props
+const { title = true, cards = false, category, class: className, ...props } = Astro.props
 
 const getReadingStats = (markdown: string) => {
   const text = markdown
@@ -43,17 +44,19 @@ const getReadingStats = (markdown: string) => {
   return { total: total.toLocaleString('zh-CN'), minutes }
 }
 
-const docCategories = Object.entries(docsByCate).map(([id, docs]) => {
-  const sortedDocs = docs.sort((a, b) => a.data.order - b.data.order)
-  const stats = getReadingStats(sortedDocs.map((doc) => doc.body ?? '').join('\n'))
+const docCategories = Object.entries(docsByCate)
+  .filter(([id]) => !category || id.toLowerCase() === category.toLowerCase())
+  .map(([id, docs]) => {
+    const sortedDocs = docs.sort((a, b) => a.data.order - b.data.order)
+    const stats = getReadingStats(sortedDocs.map((doc) => doc.body ?? '').join('\n'))
 
-  return {
-    id,
-    docs: sortedDocs,
-    firstDoc: sortedDocs[0],
-    stats
-  }
-})
+    return {
+      id,
+      docs: sortedDocs,
+      firstDoc: sortedDocs[0],
+      stats
+    }
+  })
 ---
 
 <docs-toc class={cn('not-prose', className)} {...props}>

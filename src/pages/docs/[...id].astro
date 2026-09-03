@@ -40,7 +40,7 @@ const nextDoc = currentIndex >= 0 ? collectionDocs[currentIndex + 1] : undefined
 <PageLayout meta={{ description, title }} back='/docs'>
   <Fragment slot='sidebar'>
     {!!headings.length && <TOC {headings} />}
-    <DocsContents class='docs-toc block mt-3' />
+    <DocsContents category={collectionId} class='docs-toc block mt-3' />
   </Fragment>
 
   <Fragment slot='header'>
